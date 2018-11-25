@@ -52,7 +52,7 @@ fs.readFile('./tmp.txt','utf8',function(err,data){
 );
 //console.log('COming next line');
 //API call in nodejs
-//instaedof data we are using event emitter object..here res is an event emitter object..whenever it's getting data from api it's going to trigger the data event and gives the chunk of the data in the call back
+//insteadof data we are using event emitter object..here res is an event emitter object..whenever it's getting data from api it's going to trigger the data event and gives the chunk of the data in the call back
 //The end event is used to know the API response is done
 var http = require('http');
 var url = "http://api.forismatic.com/api/1.0/json?method=getQuote&lang=en&format=json";
@@ -71,4 +71,3 @@ console.log(quote);
 });
 
 //most of the functions in node js non blocking
-
