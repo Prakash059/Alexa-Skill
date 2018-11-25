@@ -56,9 +56,9 @@ exports.handler = function(event,context){
 
 function getWish(){
   var myDate = new Date();
-  var hours = myDate.getUTCHours()- 8;
-  if(hours<0){
-    hours = hours+24;
+  var hours = myDate.getUTCHours()+5.5;
+   if(hours>=24){
+     hours = hours-24;
   }
   if(hours<12){
     return "Good Morning. ";
