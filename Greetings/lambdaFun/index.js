@@ -1,4 +1,5 @@
 'use strict';
+var http = require('http');
 exports.handler = function(event,context){
   //event is a request json file,here we have example event.json
   //through event object parameter we can access event.json objects(session,version,request)
@@ -24,7 +25,7 @@ exports.handler = function(event,context){
      context.succeed(buildResponse({
       speechText: "Welcome to Greetings skill. Using our skill you can greet your guests. whom you want to greet?",
       repromptText: "You can say for example, say hello to john",
-      endSession: false;
+      endSession: false
     }));
 
   }else if (request.type === "IntentRequest") {
@@ -35,8 +36,18 @@ exports.handler = function(event,context){
       let name = request.intent.slots.FirstName.value;
       options.speechText = "Hello "+name+". " ;
       options.speechText+=getWish();
-      options.endSession = true;
-      context.succeed(buildResponse(options));
+      //Since this is non blocking IO(i.e.,Asynchronous function),try catch blocks won't work here.so,we will use context.fail.....
+      getQuote(function(quote,err){
+        if(err){
+          context.fail(err);
+        }else{
+          options.speechText += quote;
+          //Since the functino is Asynchronous,endSession and succeed comes inside the else block...otherwise,before getting the quote the endSession and succeed may execute...
+          options.endSession = true;
+          context.succeed(buildResponse(options));
+        }
+      });
+
 
     }else{
       //context.fail("Unknown Intent");
@@ -53,6 +64,29 @@ exports.handler = function(event,context){
   context.fail("Exception: "+e);
 }
 }
+
+//API call
+function getQuote(callback){
+  var url = "http://api.forismatic.com/api/1.0/json?method=getQuote&lang=en&format=json";
+  var req = http.get(url,function(res){
+    var body = "";
+    res.on('data',function(chunk){
+      body+=chunk;
+    });
+    res.on('end',function(){
+      body = body.replace(/\\/g,'');
+      var quote = JSON.parse(body);
+      callback(quote.quoteText);
+    });
+  });
+
+  req.on('error',function(err){
+    callback('',err);
+  });
+
+}
+
+
 
 function getWish(){
   var myDate = new Date();
