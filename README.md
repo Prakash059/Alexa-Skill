@@ -26,5 +26,28 @@ To Test the skill in terminal:
    >> lambda-local -l index.js -h handler -e event.json
 
 
+SSML(Speech Synthesis Markup Language):
+
+Whenever we are sending response back to alexa,we are sending it as a plain text(type)..In Plain text to output speech,alexa recognize the punctuations(,,?,!)...
+
+1)SSML tags provide the control,that recognize the abbreviations , achronyms,etc..
+2)audio SSML tag used to get your response from mp3 files.
+3)say-as tag used,how alexa should pronounce the numbers(ordinal,cordinal),address,date,etc,..
+
+more information you can fine here...,
+"https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html"
+
+
+Upload aws Lambda function from console:
+
+AWS CLI setup
+  >> pip install awscli
+  >> Create a user and give permissions at IAM Management console
+  >> aws configure
+
+  >> zip -r lambda_upload.zip index.js
+  >> aws lambda update-function-code --function-name Greetings --zip-file fileb://lambda_upload.zip
+
+
 
 

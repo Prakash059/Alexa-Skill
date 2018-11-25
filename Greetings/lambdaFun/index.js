@@ -15,7 +15,7 @@ exports.handler = function(event,context){
      iii) SessionEndedRequest Ex: "exit" or error or timeout*/
   if (request.type === "LaunchRequest") {
     //We can create options object separately and pass it to buildResponse Method like below:::::
-    // let options = {};
+    //  let options = {};
     // options.speechText = "Welcome to Greetings skill. Using our skill you can greet your guests. whom you want to greet?";
     // options.repromptText = "You can say for example, say hello to john";
     // options.endSession = false;
@@ -26,7 +26,8 @@ exports.handler = function(event,context){
       speechText: "Welcome to Greetings skill. Using our skill you can greet your guests. whom you want to greet?",
       repromptText: "You can say for example, say hello to john",
       endSession: false
-    }));
+    })
+  );
 
   }else if (request.type === "IntentRequest") {
 
@@ -34,7 +35,7 @@ exports.handler = function(event,context){
     if(request.intent.name ==="HelloIntent"){
 
       let name = request.intent.slots.FirstName.value;
-      options.speechText = "Hello "+name+". " ;
+      options.speechText = `Hello <say-as interpret-as="spell-out">${name}</say-as>${name}.`;
       options.speechText+=getWish();
       //Since this is non blocking IO(i.e.,Asynchronous function),try catch blocks won't work here.so,we will use context.fail.....
       getQuote(function(quote,err){
@@ -109,8 +110,8 @@ function buildResponse(options){
     version: "1.0",
     response: {
       outputSpeech: {
-        type: "PlainText",
-        text: options.speechText
+        type: "SSML",
+        ssml: "<speak>"+options.speechText+"</speak>"
       },
       shouldEndSession: options.endSession
     }
@@ -118,8 +119,8 @@ function buildResponse(options){
   if(options.repromptText){
     response.response.reprompt = {
       outputSpeech: {
-        type: "PlainText",
-        text: options.repromptText
+        type: "SSML",
+        ssml: "<speak>"+options.repromptText+"</speak>"
       }
     };
   }
