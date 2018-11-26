@@ -42,10 +42,13 @@ Upload aws Lambda function from console:
 
 AWS CLI setup
   >> pip install awscli
+  
   >> Create a user and give permissions at IAM Management console
+  
   >> aws configure
 
   >> zip -r lambda_upload.zip index.js
+  
   >> aws lambda update-function-code --function-name Greetings --zip-file fileb://lambda_upload.zip
 
 
