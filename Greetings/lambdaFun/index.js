@@ -8,6 +8,11 @@ exports.handler = function(event,context){
   //if any error happens,we need to call fail with the error message..
   try{
   var request = event.request;
+  var session = event.session;
+
+  if(!event.session.attributes){
+    event.session.attributes = {};
+  }
   /* request.type(There are 3 types of request that alexa service can send to Lambda function)
    3 types of requests
     i)   LaunchRequest       Ex: "Open greeter"
@@ -48,9 +53,24 @@ exports.handler = function(event,context){
           context.succeed(buildResponse(options));
         }
       });
+    }
 
+      //Getting only quote...
+      else if(request.intent.name === "QuoteIntent"){
 
-    }else{
+        handleQuoteIntent(request,context,session);
+
+      }else if (request.intent.name === "NextQuoteIntent") {
+
+        handleNextQuoteIntent(request,context,session);
+
+      }else if(request.intent.name === "AMAZON.StopIntent"){
+        context.succeed(buildResponse({
+          speechText : "Good bye. ",
+          endSession : true
+        }));
+      }
+      else{
       //context.fail("Unknown Intent");
       throw "Unknown Intent";
     }
@@ -86,6 +106,8 @@ function getQuote(callback){
   });
 
 }
+
+//Using the sessionAttributes we can pass the info. from one intent to another Intent
 
 
 
@@ -124,5 +146,56 @@ function buildResponse(options){
       }
     };
   }
+  if(options.session && options.session.attributes){
+    response.sessionAttributes = options.session.attributes;
+  }
   return response;
+}
+
+
+
+//Implementing QuoteIntent
+
+function handleQuoteIntent(request,context,session){
+  let options = {};
+  options.session = session;
+  getQuote(function(quote,err){
+    if(err){
+      context.fail(err);
+    }else{
+      options.speechText = quote;
+      options.speechText+="Do you want to listen to one more quote?";
+      options.repromptText = "You can say yes or one more. ";
+      options.session.attributes.QuoteIntent = true;
+      options.endSession = false;
+      context.succeed(buildResponse(options));
+    }
+  });
+}
+
+
+
+function handleNextQuoteIntent(request,context,session){
+  let options = {};
+  options.session = session;
+  if(session.attributes.QuoteIntent){
+    getQuote(function(quote,err){
+      if(err){
+        context.fail(err);
+      }else{
+        options.speechText = quote;
+        options.speechText+="Do you want to listen to one more quote?";
+        options.repromptText = "You can say yes or one more. ";
+        //options.session.attributes.QuoteIntent = true;
+        options.endSession = false;
+        context.succeed(buildResponse(options));
+      }
+    });
+  }else{
+    options.speechText = "Wrong Invocation of this intent";
+    options.endSession = true;
+    context.succeed(buildResponse(options));
+    
+  }
+
 }
